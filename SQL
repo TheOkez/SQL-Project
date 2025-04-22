@@ -1,0 +1,687 @@
+#lesson 5
+
+#1
+SELECT
+  invoiceDate,
+  BillingAdress,
+  BillingCity,
+  total
+FROM
+  invoice
+WHERE 
+  BillingCity LIKE 'B%'
+ORDER BY
+  InvoiceDate
+
+#Data Analysis Request
+SELECT
+  invoiceDate,
+  BillingAdress,
+  BillingCity,
+  total
+FROM
+  invoice
+WHERE 
+  Date(InvoiceDate) = "2010-05-22"
+ORDER BY
+  InvoiceDate
+
+#Filter record
+SELECT
+  invoiceDate,
+  BillingAdress,
+  BillingCity,
+  total
+FROM
+  invoice
+WHERE 
+  Date(InvoiceDate) > "2010-05-22" AND total < 3.00
+ORDER BY
+  InvoiceDate
+
+#Logical operator-#OR0
+SELECT
+  invoiceDate,
+  BillingAddress,
+  BillingCity,
+  total
+FROM
+  invoice
+WHERE 
+  BillingCity LIKE 'P%' OR BillingCity LIKE 'D%'
+ORDER BY
+  InvoiceDate
+#Logical operator-#OR1
+SELECT
+  invoiceDate,
+  BillingAddress,
+  BillingCity,
+  total
+FROM
+  invoice
+WHERE 
+  total > 1.98 AND (BillingCity LIKE 'P%' OR BillingCity LIKE 'D%')
+ORDER BY
+  InvoiceDate
+
+#Logical operator-#OR2
+SELECT
+  invoiceDate,
+  BillingAddress,
+  BillingCity,
+  total,
+  CASE
+  WHEN total < 2.00 THEN  'Baseline Purhcase'
+  WHEN total BETWEEN 2.00 AND 6.99 THEN 'Low Purchase'
+  WHEN total BETWEEN 7.00 AND 15.00 THEN 'Target Purchase' 
+  ELSE 'Top Performer'
+  END AS PurchaseType
+FROM
+  invoice
+WHERE 
+ PurchaseType = 'Top Performer'
+ORDER BY
+  InvoiceDate
+
+#final Project
+/*
+Query to select trackname, compusers,unit proces, and categorize each track on its price
+*/
+
+SELECT
+  Name AS 'Track Name',
+  Composer,
+  UnitPrice AS Price,
+  CASE
+  WHEN UnitPrice <= 0.99 THEN 'Budget'
+  WHEN UnitPrice > 0.99 AND UnitPrice <= 1.49 THEN 'Regular'
+  WHEN UnitPrice > 1.49 AND UnitPrice <= 1.99 THEN 'Premium'
+  ELSE 'Exclusive'
+  END AS PriceCategory
+
+FROM
+  Track
+ORDER BY
+  UnitPrice ASC;
+
+#Lesson 6
+#Task 1
+SELECT
+  *
+FROM
+  Invoice
+INNER JOIN
+ Customer
+ON
+  Invoice.Customerid = Customer.Customerid
+Order by Customer.Customerid
+
+#2 -#SIMPLE JOIN
+SELECT
+  C.LastName,
+  C.FirstName,
+  I.Invoiceid,
+  I.Customerid,
+  I.InvoiceDate,
+  I.total
+FROM
+  Invoice AS I
+INNER JOIN
+  Customer AS C
+ON
+  I.Customerid = C.Customerid
+Order by C.Customerid
+
+#3 - types of Join - INNER JOIN
+
+SELECT
+ I.InvoiceId,
+ C.CustomerId,
+ C.LastName,
+ C.FirstName,
+ I.InvoiceDate,
+ I.BillingAddress,
+ I.total
+FROM
+ Invoice AS I
+INNER JOIN
+ Customer AS C
+ ON
+  i.CustomerId = c.CustomerID
+
+#Right JOIN
+#not supported in sql lite
+
+SELECT
+ I.InvoiceId,
+ C.CustomerId,
+ C.LastName,
+ C.FirstName,
+ I.InvoiceDate,
+ I.BillingAddress,
+ I.total
+FROM
+ Invoice AS I
+RIGHT OUTER JOIN
+ Customer AS C
+ ON
+  i.CustomerId = c.CustomerID
+
+#join many TABLE
+/*what employees are available for the top 10 heighest individual sales
+
+*/
+SELECT
+  e.FirstName,
+  e.LastName,
+  e.Employeeid,
+  c.FirstName,
+  c.LastName,
+  c.SupportRepid,
+  i.Customerid,
+  i.total
+
+FROM
+  invoice AS i
+INNER JOIN
+  Customer AS c
+ON
+  i.Customerid = c.Customerid
+INNER JOIN
+  Employee AS e
+ON
+ c.SupportRepid = e.Employeeid
+ORDER BY
+  i.total DESC
+LIMIT 10
+
+
+#Task 6 of lesson 6
+/* this query generates a report that lists each customer along with their assigned support reperesentative
+*/
+SELECT
+  c.FirstName AS CustomerFirstName,
+  c.LastName AS CustomerLastName,
+  e.FirstName AS SupportRepFirstName,
+  e.LastName AS SupportRepLastName
+FROM
+  Customer AS c
+JOIN
+  Employee as e
+ON
+   c.SupportRepid = e.Employeeid
+ORDER BY
+  e.LastName, c.FirstName;
+
+/*Lesson 7*/
+-- lesson1 on functions
+
+--CONCATENATION
+SELECT
+  FirstName,
+  LastName,
+  Address,
+  FirstName ||''|| LastName ||''|| Address ||','|| City ||''||State ||''||PostalCode AS [Mailing Address]
+FROM
+  Customer
+WHERE
+  Country ='USA'
+
+--Truncate
+
+SELECT
+  FirstName,
+  LastName,
+  Address,
+  FirstName ||''|| LastName ||''|| Address ||','|| City ||''||State ||''||PostalCode AS [Mailing Address],
+  LENGTH(postalcode),
+  substr(postalcode,1,5) AS [5 Digit Postal Code]
+FROM
+  Customer
+WHERE
+  Country ='USA'
+
+--Upper and Lower FUnction
+SELECT
+  FirstName,
+  LastName,
+  Address,
+  FirstName ||''|| LastName ||''|| Address ||','|| City ||''||State ||''||PostalCode AS [Mailing Address],
+  LENGTH(postalcode),
+  substr(postalcode,1,5) AS [5 Digit Postal Code],
+  upper(firstname) AS [First Name All caps],
+  lower(lastname) AS [Last Name ALL Lower]
+FROM
+  Customer
+WHERE
+  Country ='USA'
+
+
+--Date Function
+
+SELECT
+  LastName,
+  FirstName,
+  BirthDate,
+  strftime('%Y-%m-%d',Birthdate) AS [Birthday NO Timecode],
+  strftime('%Y-%m-%d','now') - strftime('%Y-%m-%d',Birthdate) AS AGE
+FROM
+  Employee;
+
+--Aggregate
+SELECT
+  SUM(Total) AS [Total Sales],
+  AVG(Total) AS [Average Sales],
+  MAX(Total) AS [Maximum Sales],
+  MIN(Total) AS [Minimum Sales],
+  COUNT(*) AS [Sales Count]
+FROM
+  Invoice
+
+--Nested Function
+SELECT
+  SUM(Total) AS [Total Sales],
+  round(AVG(Total),2) AS [Average Sales],
+  AVG(Total) AS [Average Sales],
+  MAX(Total) AS [Maximum Sales],
+  MIN(Total) AS [Minimum Sales],
+  COUNT(*) AS [Sales Count]
+FROM
+  Invoice
+
+--CODE CHALLENGE
+
+/*This query selects customer full name and transform the postal code into a standard 5 digit format*/
+SELECT 
+  CONCAT(c.FirstName, ' ', c.LastName) AS CustomerFullName,
+  LPAD(c.PostalCode, 5, '0') AS StandardizedPostalCode
+FROM 
+  customer AS c
+WHERE 
+  c.Country = 'USA';
+
+--Lesson 8
+/*Grouping SQL | what are the average invoice totals by city?
+*/
+
+SELECT
+  BillingCity,
+  round(avg(Total),2)
+FROM
+  Invoice
+WHERE
+  avg(Total) > 5
+GROUP BY
+  BillingCity
+ORDER BY
+	BillingCity
+--Another
+SELECT
+  BillingCity,
+  round(avg(Total),2)
+FROM
+  Invoice
+WHERE
+	BillingCity LIKE 'L%'
+GROUP BY
+  BillingCity
+ ORDER BY
+	BillingCity
+
+
+
+--2
+SELECT
+  BillingCity,
+  round(avg(Total),2)
+FROM
+  Invoice
+
+GROUP BY
+  BillingCity
+ORDER BY
+	BillingCity
+
+--Having clause
+SELECT
+  BillingCity,
+  round(avg(total),2)
+FROM
+  Invoice
+GROUP BY
+  BillingCity
+HAVING
+  avg(total) > 5
+ORDER BY
+	BillingCity
+-- HAVING & WHERE CLAUSE
+--Average total greather than $5.00 for cities starting with B?
+SELECT
+  BillingCity,
+  round(avg(total),2)
+FROM
+  Invoice
+WHERE
+  BillingCity LIKE 'B%'
+GROUP BY
+  BillingCity
+HAVING
+  avg(total) > 5
+ORDER BY
+	BillingCity
+
+-- Group many fields
+--Average invoice totals by billingcountry and city?
+SELECT
+  BillingCountry,
+  BillingCity,
+  round(avg(total),2)
+FROM
+  Invoice
+GROUP BY
+  BillingCity,BillingCountry
+ORDER BY
+  BillingCity
+
+--Lesson 8 - Project
+/*
+This query calculate the average spending amount if customers in each city
+*/
+
+SELECT
+  BillingCIty AS City,
+  round(avg(total),2) AS AverageSpending
+
+FROM
+  Invoice as i
+GROUP BY
+  BillingCity
+ORDER BY
+  City ASC;
+
+
+--lesson 9
+-- inner query (Select clause)
+SELECT
+  InvoiceDate,
+  BillingAddress,
+  BillingCity,
+  total
+FROM
+  Invoice
+WHERE
+  total <
+  (select avg(total) from Invoice)
+ORDER BY
+  total DESC;
+
+--Aggregated Subqueries
+-- How each individual city perdorming against the global average sales?
+
+
+SELECT
+  BillingCity,
+  AVG(total) AS CityAverage,
+  (select avg(total) from Invoice) AS GlobalAverage
+FROM
+  Invoice
+GROUP BY
+  BillingCity
+ORDER BY
+  BillingCity
+
+  --Describe subqueries without aggregate functions
+
+SELECT
+  InvoiceDate,
+  BillingAddress,
+  BillingCity
+FROM
+  Invoice
+
+WHERE
+  InvoiceDate >
+
+(SELECT
+  InvoiceDate
+FROM
+  Invoice
+WHERE
+  Invoiceid=251)
+
+--Returning multiple values from a subquery
+SELECT
+  InvoiceDate,
+  BillingAddress,
+  BillingCity  
+
+FROM
+  Invoice
+WHERE 
+  InvoiceDate IN
+(SELECT
+  InvoiceDate
+FROM
+  Invoice
+WHERE
+  Invoiceid IN (251, 252, 254));
+
+-- DISTINCT Clause Subquery
+--which tracks are not selling
+
+SELECT
+  DISTINCT
+  TrackId
+FROM 
+  InvoiceLine
+ORDER BY
+  TrackId
+
+--lIST all track not in the list
+
+SELECT
+  Trackid,
+  Composer,
+  Name
+FROM
+  Track
+WHERE
+  TrackId
+NOT IN
+(SELECT
+  DISTINCT
+  TrackId
+FROM 
+  InvoiceLine
+ORDER BY
+  TrackId)
+--Lesson 9 Project
+--This query identifies tracks that have not been sold
+
+SELECT
+  t.Trackid AS "Track ID",
+  t.Composer,
+  t.Name AS "Track Name",
+  g.Name AS Genre
+FROM
+  Track AS t
+JOIN 
+  Genre g 
+ON 
+  t.GenreId = g.GenreId
+WHERE
+  t.TrackId
+NOT IN
+(SELECT
+  DISTINCT
+  InvoiceLine.TrackId
+FROM 
+  InvoiceLine)
+ORDER BY
+  "Track Name" ASC;
+
+--10
+--Create View
+CREATE VIEW V_AvgTotal AS
+SELECT
+  round(avg(total),2) AS [AVERGE Total]
+FROM
+  Invoice
+
+-- Editing View
+DROP VIEW "main"."V_AvgTotal";
+CREATE VIEW V_AvgTotal AS
+SELECT
+  avg(total) AS [AVERGE Total]
+FROM
+  Invoice
+--Joining View
+CREATE VIEW V_Track_InvoiceLine AS 
+SELECT
+  ii.InvoiceId,
+  ii.UnitPrice,
+  ii.Quantity,
+  t.Name,
+  t.Composer,
+  t.Milliseconds
+FROM
+  InvoiceLine AS ii
+INNER JOIN
+  Track AS t
+ON
+  ii.TrackId = t.trackId
+--Delete
+--Select the view, right click and select the delete option
+--via SQL Syntax do
+DROP VIEW
+  V_AvgTotal
+
+--Lesson 11
+--Inserting Data
+
+INSERT INTO
+  Artist(Name)
+VALUES('Davido')
+--Update Statement
+--Using the WHERE Cluaseto specify the row.
+
+UPDATE
+  Artisst
+SET Name = 'Wizkid'
+WHERE
+  ArtistId = 276
+
+--Deleting Data
+DELETE FROM
+  Artist
+WHERE
+  ArtistId = 276
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
